@@ -1,8 +1,7 @@
 # Coronavirus Dashboard
 
-The purpose of this application is to show the distrubution of coronavirus across all countries in the world.
-The user may see (1) The statistics behind the cases, deaths, new cases and new deaths; (2) May click on any country to see
-several different statistics, including, case density (cases per 10,000 individuals) and death density (deaths per 100,000 individuals).
+The purpose of this application is to share statistics about the coronavirus epidemic using data from the WHO.
+The user can observe a number of statistics related to the virus, on both a national and global level, including, number of cases, number of deaths, new cases, new deaths, cases per million individuals and deaths per million individuals.
 
 ## Deployment
 

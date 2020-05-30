@@ -19,38 +19,46 @@ library(readr)
 library(countrycode)
 library(data.table)
 
-
-############
-# GET DATA #
-############
-
-#####
-# POPULATION DATA
-####
-#setwd("/Users/elijahsilva/R/Shiny/covid")
-
+########################
+# IMPORT DATA FROM WHO #
+########################
 data <-
     read.csv("https://covid.ourworldindata.org/data/owid-covid-data.csv",
              header = TRUE)
 
+#################
+# DATA CLEANING #
+#################
 
-data$location <- gsub("Cote d'Ivoire", "Ivory Coast", data$location)
-
+data$location <- gsub("Cote d'Ivoire", "Ivory Coast", data$location) 
 data$date <- as.Date(data$date, format = "%Y-%m-%d")
 todaydate = max(as.Date((data$date)))
 startdate = "2020-04-24" #input it manually ~a month previous
 options(scipen = 999)
 
+####################
+# IMPORT SHAPEFILE #
+####################
 world_spdf <- readOGR( #import spatial files
     dsn = paste0(getwd(), "/DATA/world_shape_file/") ,
     layer = "TM_WORLD_BORDERS_SIMPL-0.3",
     verbose = FALSE
 )
 
+####
+# SUBSET DATA FOR DATASET INCL. ONLY TODAYS  DATA
+####
 dataToday <- subset(data, date == todaydate)
 
+###
+# MERGE SHAPE FILE AND  DATASET
+###
 world_sf_merged <- geo_join(world_spdf, dataToday, "ISO3", "iso_code")
 
+
+###
+# CREATE LEAFLET POPUPS
+###
 popup_sb <-
     paste0(
         "<center>",

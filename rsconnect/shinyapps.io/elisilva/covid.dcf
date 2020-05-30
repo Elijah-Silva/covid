@@ -1,0 +1,12 @@
+name: covid
+title: covid
+username:
+account: elisilva
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1960113
+bundleId: 3185596
+url: https://elisilva.shinyapps.io/covid/
+when: 1590362765.04564
+asMultiple: FALSE
+asStatic: FALSE

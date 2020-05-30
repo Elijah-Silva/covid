@@ -221,8 +221,9 @@ ui <- shinyUI(navbarPage(
                                          "Source:",
                                          tags$a(href = "https://covid.ourworldindata.org/data/owid-covid-data.csv", "WHO")
                                      ),
-                                     tags$h6("Created by Elijah Silva", align = "center", " | ",
-                                             a(href = "https://www.linkedin.com/in/elijahsilva/", "LinkedIn"),
+                                     tags$h6("Created by Elijah Silva", br(),
+                                             a(href = "https://www.linkedin.com/in/elijahsilva/", "LinkedIn"), " | ",
+                                             a(href = "https://github.com/Elijah-Silva/covid", "Github"), 
                                              align = "center")
                                  ))
                              ),

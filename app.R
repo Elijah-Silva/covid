@@ -19,9 +19,9 @@ library(readr)
 library(countrycode)
 library(data.table)
 
-########################
-# IMPORT DATA FROM WHO #
-########################
+#########################
+# IMPORT DATA FROM ECDC #
+#########################
 data <-
     read.csv("https://covid.ourworldindata.org/data/owid-covid-data.csv",
              header = TRUE)
@@ -29,11 +29,10 @@ data <-
 #################
 # DATA CLEANING #
 #################
-
 data$location <- gsub("Cote d'Ivoire", "Ivory Coast", data$location) 
 data$date <- as.Date(data$date, format = "%Y-%m-%d")
 todaydate = max(as.Date((data$date)))
-startdate = "2020-04-24" #input it manually ~a month previous
+startdate = "2020-01-01" #input it manually ~a month previous
 options(scipen = 999)
 
 ####################
@@ -69,7 +68,7 @@ popup_sb <-
         "</strong>",
         "</center>",
         br(),
-        "Total: ",
+        "Total Cases: ",
         "<strong>",
         format(
             world_sf_merged$total_cases,
@@ -78,7 +77,7 @@ popup_sb <-
         ),
         "</strong>",
         "<br/>",
-        "Deaths: ",
+        "Total Deaths: ",
         "<strong>",
         format(
             world_sf_merged$total_deaths,
@@ -107,13 +106,21 @@ popup_sb <-
         "<br/>",
         "Case Density: ",
         "<strong>",
-        round(world_sf_merged$total_cases_per_million, 0),
+        format(
+            round(world_sf_merged$total_cases_per_million, 0),
+            big.mark = ",",
+            scientific = FALSE
+        ),
         " per million individuals",
         "</strong>",
         "<br/>",
         "Death Density: ",
         "<strong>",
-        round(world_sf_merged$total_deaths_per_million, 0),
+        format(
+            round(world_sf_merged$total_deaths_per_million, 0),
+            big.mark = ",",
+            scientific = FALSE
+        ),
         " per million individuals",
         "</strong>"
     )
@@ -152,7 +159,6 @@ themeGG <- theme(
 ########################
 # COLOR PALETTE GGPLOT #
 ########################
-
 palC <-
     colorNumeric("YlOrBr",
                  domain = world_sf_merged@data$total_cases,
@@ -227,7 +233,7 @@ ui <- shinyUI(navbarPage(
                                      h6("Last Updated:", todaydate, ' at 6AM EST'),
                                      h6(
                                          "Source:",
-                                         tags$a(href = "https://covid.ourworldindata.org/data/owid-covid-data.csv", "WHO")
+                                         tags$a(href = "https://covid.ourworldindata.org/data/owid-covid-data.csv", "ECDC")
                                      ),
                                      tags$h6("Created by Elijah Silva", br(),
                                              a(href = "https://www.linkedin.com/in/elijahsilva/", "LinkedIn"), " | ",
@@ -280,13 +286,12 @@ ui <- shinyUI(navbarPage(
 ))
 
 
-#################
-# SSTART SERVER #
-#################
-
+################
+# START SERVER #
+################
 server <- function(input, output, session) {
     location <- data$location
-    dates <- format(data$date, "%Y-%m-%d")
+    dates <- format(data$date, format ="%Y-%m-%d")
     total_cases <- data$total_cases
     total_deaths <- data$total_deaths
     new_cases <- data$new_cases
@@ -603,14 +608,14 @@ server <- function(input, output, session) {
                     setView(lat = lat, lng = lng, zoom = 4) %>%
                     addPolygons(
                         data = world_sf_merged ,
-                        fillColor = ~ palCD(world_sf_merged$total_deaths_per_million),
+                        fillColor = ~ palDD(world_sf_merged$total_deaths_per_million),
                         fillOpacity = 0.7,
                         weight = 0.2,
                         smoothFactor = 0.2,
                         popup = ~ popup_sb
                     ) %>%
                     addLegend(
-                        pal = palCD,
+                        pal = palDD,
                         values = world_sf_merged$total_deaths_per_million,
                         position = "bottomright",
                         title = "Deaths per Million"

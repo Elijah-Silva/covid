@@ -18,4 +18,4 @@ Elijah Silva -- [LinkdedIn](https://www.linkedin.com/in/elijahsilva/)
 
 ## Source Data
 
-[ECDC](https://ourworldindata.org/coronavirus-source-data)
+[European CDC (ECDC)](https://github.com/owid/covid-19-data/tree/master/public/data/)

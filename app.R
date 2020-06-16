@@ -17,7 +17,9 @@ library(dplyr)
 library(tigris)
 library(readr)
 library(countrycode)
+library(shinycssloaders)
 library(data.table)
+library(plotly)
 
 #########################
 # IMPORT DATA FROM ECDC #
@@ -214,17 +216,18 @@ ui <- shinyUI(navbarPage(
                                      12,
                                      hr(),
                                      selectInput(
-                                         "radio",
-                                         label = "Statistic:",
-                                         selected = "Cases",
-                                         choices = c("Cases", "Deaths", "New Cases", "Cases Per Million", "Deaths Per Million"),
-                                     ),
-                                     selectInput(
                                          "country",
                                          "Country:",
                                          choices =
                                              dataToday$location,
                                          selected = "France",
+                                     ),
+                                     radioButtons(
+                                         "radio",
+                                         label = "Statistic:",
+                                         inline = TRUE,
+                                         selected = "Cases",
+                                         choices = c("Cases", "Deaths", "New Cases", "Cases Per Million", "Deaths Per Million"),
                                      ),
                                      hr(),
                                  )),
@@ -242,8 +245,8 @@ ui <- shinyUI(navbarPage(
                                  ))
                              ),
                              column(6,
-                                    leafletOutput("map",
-                                                  height = 711)),
+                                    withSpinner(leafletOutput("map",
+                                                  height = 711),type=6)),
                              column(4,
                                     "",
                                     fluidRow(
@@ -269,7 +272,7 @@ ui <- shinyUI(navbarPage(
                                     hr(),
                                     fluidRow(column(
                                         12,
-                                        plotOutput("plot1"),
+                                        withSpinner(plotlyOutput("plot1"),type=6),
                                         dateRangeInput(
                                             "dateRange",
                                             label = "Filter Date Range:",
@@ -426,9 +429,17 @@ server <- function(input, output, session) {
     })
     
     observe({
+        if (input$country == "World") {
+           showModal(modalDialog(title = "World Plot", "To update the plot for World, please update 'Filter Date Range' at the bottom right corner",
+                                 easyClose = TRUE))
+        }
+    })
+    
+    observe({
         if (input$radio == "Cases") {
-            output$plot1 <- renderPlot({
-                ggplot(data = df_subset(), aes(x = as.Date(dates))) +
+            output$plot1 <- renderPlotly({
+                ggplotly({
+                    ggCases <- ggplot(data = df_subset(), aes(x = as.Date(dates))) +
                     geom_line(aes(y = total_cases),
                               color = 'darkred',
                               group = 5) +
@@ -438,11 +449,15 @@ server <- function(input, output, session) {
                     labs(title = "Number of Cases",
                          y = "Number of Cases",
                          x = "Date")
+                    
+                    ggCases
+                })
             })
         }
         if (input$radio == "Deaths") {
-            output$plot1 <- renderPlot({
-                ggplot(data = df_subset(), aes(x = as.Date(dates))) +
+            output$plot1 <- renderPlotly({
+                ggplotly({
+                    ggDeaths <- ggplot(data = df_subset(), aes(x = as.Date(dates))) +
                     geom_line(aes(y = total_deaths),
                               color = 'steelblue',
                               group = 5) +
@@ -452,12 +467,16 @@ server <- function(input, output, session) {
                          y = "Number of Deaths",
                          x = "Date") +
                     themeGG
+                    
+                    ggDeaths
+                })
                 
             })
         }
         if (input$radio == "New Cases") {
-            output$plot1 <- renderPlot({
-                ggplot(data = df_subset(), aes(x = as.Date(dates), y = new_cases)) +
+            output$plot1 <- renderPlotly({
+                ggplotly({
+                    ggNew <- ggplot(data = df_subset(), aes(x = as.Date(dates), y = new_cases)) +
                     geom_bar(stat = "identity") +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     scale_x_date() +
@@ -465,11 +484,15 @@ server <- function(input, output, session) {
                          y = "Number of New Cases",
                          x = "Date") +
                     themeGG
+                    
+                    ggNew
+                })
             })
         }
         if (input$radio == "Cases Per Million") {
-            output$plot1 <- renderPlot({
-                ggplot(data = df_subset(), aes(x = as.Date(dates), y = case_dens)) +
+            output$plot1 <- renderPlotly({
+                ggplotly({
+                    ggCD <- ggplot(data = df_subset(), aes(x = as.Date(dates), y = case_dens)) +
                     geom_bar(stat = "identity") +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     scale_x_date() +
@@ -477,11 +500,15 @@ server <- function(input, output, session) {
                          y = "Number of Cases Per Million",
                          x = "Date") +
                     themeGG
+                    
+                    ggCD
+                })
             })
         }
         if (input$radio == "Deaths Per Million") {
-            output$plot1 <- renderPlot({
-                ggplot(data = df_subset(), aes(x = as.Date(dates), y = death_dens)) +
+            output$plot1 <- renderPlotly({
+                ggplotly({
+                    ggDD <- ggplot(data = df_subset(), aes(x = as.Date(dates), y = death_dens)) +
                     geom_bar(stat = "identity") +
                     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                     scale_x_date() +
@@ -489,6 +516,9 @@ server <- function(input, output, session) {
                          y = "Number of Deaths Per Million",
                          x = "Date") +
                     themeGG
+                    
+                    ggDD
+                })
             })
         }
     })

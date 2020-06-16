@@ -10,7 +10,6 @@ This Shiny application may be accessed [here](https://elisilva.shinyapps.io/covi
 ## Bugs
 1. Countries missing data for today's date (in the ECDC dataset) are not included in the dashboard (i.e. Spain)
 2. When "World" is choosen as country, no map will be shown (no lat/lng data for "World" in shapefile)
-3. To update plot when "World" is selected, you must change the x-axis date (Date Range Input) for the plot to update
 
 ## Authors
 

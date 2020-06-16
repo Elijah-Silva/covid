@@ -9,17 +9,15 @@ library(ggplot2)
 library(lubridate)
 library(dplyr)
 library(shinyWidgets)
-library(shinydashboard)
+library(tigris)
 library(DT)
-library(maptools)
 library(rgdal)
 library(dplyr)
-library(tigris)
-library(readr)
 library(countrycode)
-library(shinycssloaders)
+library(shinycssloaders) #
 library(data.table)
 library(plotly)
+library(shinyalert)
 
 #########################
 # IMPORT DATA FROM ECDC #
@@ -215,6 +213,7 @@ ui <- shinyUI(navbarPage(
                                  fluidRow(column(
                                      12,
                                      hr(),
+                                     useShinyalert(),
                                      selectInput(
                                          "country",
                                          "Country:",
@@ -430,8 +429,23 @@ server <- function(input, output, session) {
     
     observe({
         if (input$country == "World") {
-           showModal(modalDialog(title = "World Plot", "To update the plot for World, please update 'Filter Date Range' at the bottom right corner",
-                                 easyClose = TRUE))
+            shinyalert(
+                title = "World Plot",
+                text = "To create a plot for World, please update 'Filter Date Range' at the bottom right corner",
+                closeOnEsc = TRUE,
+                closeOnClickOutside = TRUE,
+                html = FALSE,
+                type = "",
+                showConfirmButton = TRUE,
+                showCancelButton = FALSE,
+                confirmButtonText = "OK",
+                confirmButtonCol = "#AEDEF4",
+                timer = 0,
+                imageUrl = "data:image/png;base64,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",
+                imageWidth = 100,
+                imageHeight = 100,
+                animation = TRUE
+            )
         }
     })
     

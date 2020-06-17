@@ -14,7 +14,7 @@ library(DT)
 library(rgdal)
 library(dplyr)
 library(countrycode)
-library(shinycssloaders) #
+library(shinycssloaders)
 library(data.table)
 library(plotly)
 library(shinyalert)
@@ -29,16 +29,18 @@ data <-
 #################
 # DATA CLEANING #
 #################
-data$location <- gsub("Cote d'Ivoire", "Ivory Coast", data$location) 
+data$location <-
+    gsub("Cote d'Ivoire", "Ivory Coast", data$location)
 data$date <- as.Date(data$date, format = "%Y-%m-%d")
 todaydate = max(as.Date((data$date)))
-startdate = "2020-01-01" #input it manually ~a month previous
+startdate = "2020-01-01"
 options(scipen = 999)
 
 ####################
 # IMPORT SHAPEFILE #
 ####################
-world_spdf <- readOGR( #import spatial files
+world_spdf <- readOGR(
+    #import spatial files
     dsn = paste0(getwd(), "/DATA/world_shape_file/") ,
     layer = "TM_WORLD_BORDERS_SIMPL-0.3",
     verbose = FALSE
@@ -52,7 +54,8 @@ dataToday <- subset(data, date == todaydate)
 ###
 # MERGE SHAPE FILE AND  DATASET
 ###
-world_sf_merged <- geo_join(world_spdf, dataToday, "ISO3", "iso_code")
+world_sf_merged <-
+    geo_join(world_spdf, dataToday, "ISO3", "iso_code")
 
 
 ###
@@ -184,108 +187,124 @@ palDD <- colorNumeric("YlOrBr",
 #############
 # START UI #
 ############
-ui <- shinyUI(navbarPage(
-    theme = shinytheme("flatly"),
-    "COVID-19",
-    tabPanel("Data Explorer",
-             div(class = "outer",
-                 fluidPage(fluidRow(
-                     column(
-                         12,
-                         align = 'center',
-                         br(),
-                         fluidRow(
-                             column(
-                                 2,
-                                 "",
-                                 fluidRow(column(
-                                     12,
-                                     h5("Total Cases:", align = "center"),
-                                     h1(textOutput("worldCase"), 
-                                        style="color:darkblue",
-                                        align = "center"),
-                                 )),
-                                 fluidRow(column(
-                                     12,
-                                     div(style = 'height: 220px; overflow-y: scroll',
-                                         dataTableOutput("totalCasesTable"))
-                                 )),
-                                 fluidRow(column(
-                                     12,
-                                     hr(),
-                                     useShinyalert(),
-                                     selectInput(
-                                         "country",
-                                         "Country:",
-                                         choices =
-                                             dataToday$location,
-                                         selected = "France",
-                                     ),
-                                     radioButtons(
-                                         "radio",
-                                         label = "Statistic:",
-                                         inline = TRUE,
-                                         selected = "Cases",
-                                         choices = c("Cases", "Deaths", "New Cases", "Cases Per Million", "Deaths Per Million"),
-                                     ),
-                                     hr(),
-                                 )),
-                                 fluidRow(column(
-                                     12,
-                                     h6("Last Updated:", todaydate, ' at 6AM EST'),
-                                     h6(
-                                         "Source:",
-                                         tags$a(href = "https://covid.ourworldindata.org/data/owid-covid-data.csv", "ECDC")
-                                     ),
-                                     tags$h6("Created by Elijah Silva", br(),
-                                             a(href = "https://www.linkedin.com/in/elijahsilva/", "LinkedIn"), " | ",
-                                             a(href = "https://github.com/Elijah-Silva/covid", "Github"), 
-                                             align = "center")
-                                 ))
-                             ),
-                             column(6,
-                                    withSpinner(leafletOutput("map",
-                                                  height = 711),type=6)),
-                             column(4,
-                                    "",
-                                    fluidRow(
-                                        column(
-                                            6,
-                                            h5("Total Deaths:", align = "center"),
-                                            h1(textOutput("worldDeath"),
-                                               style="color:darkred",
-                                               align = "center"),
-                                            div(style = 'height: 130px; overflow-y: scroll',
-                                                dataTableOutput("totalDeathsTable"))
-                                        ),
-                                        column(
-                                            6,
-                                            h5("New Cases:", align = "center"),
-                                            h1(textOutput("newCases"),
-                                               style="color:darkorange",
-                                               align = "center"),
-                                            div(style = 'height: 130px; overflow-y: scroll;',
-                                                dataTableOutput("totalNewCasesTable"))
-                                        )
-                                    ),
-                                    hr(),
-                                    fluidRow(column(
-                                        12,
-                                        withSpinner(plotlyOutput("plot1"),type=6),
-                                        dateRangeInput(
-                                            "dateRange",
-                                            label = "Filter Date Range:",
-                                            min = min(data$date),
-                                            max = max(data$date),
-                                            start = startdate,
-                                            end = max(data$date)
-                                        )
-                                    )))
-                             
-                         )
-                     )
-                 ))))
-))
+ui <- shinyUI(navbarPage(theme = shinytheme("flatly"),
+                         "COVID-19",
+                         tabPanel(
+                             "Data Explorer",
+                             div(class = "outer",
+                                 fluidPage(fluidRow(
+                                     column(12,
+                                            align = 'center',
+                                            br(),
+                                            fluidRow(
+                                                column(
+                                                    2,
+                                                    "",
+                                                    fluidRow(column(
+                                                        12,
+                                                        h5("Total Cases:", align = "center"),
+                                                        h1(textOutput("worldCase"),
+                                                           style = "color:darkblue",
+                                                           align = "center"),
+                                                    )),
+                                                    fluidRow(column(
+                                                        12,
+                                                        div(style = 'height: 220px; overflow-y: scroll',
+                                                            dataTableOutput("totalCasesTable"))
+                                                    )),
+                                                    fluidRow(
+                                                        column(
+                                                            12,
+                                                            hr(),
+                                                            useShinyalert(),
+                                                            selectInput(
+                                                                "country",
+                                                                "Country:",
+                                                                choices =
+                                                                    dataToday$location,
+                                                                selected = "World",
+                                                            ),
+                                                            radioButtons(
+                                                                "radio",
+                                                                label = "Statistic:",
+                                                                inline = TRUE,
+                                                                selected = "Cases",
+                                                                choices = c(
+                                                                    "Cases",
+                                                                    "Deaths",
+                                                                    "New Cases",
+                                                                    "Cases per Million",
+                                                                    "Deaths per Million"
+                                                                ),
+                                                            ),
+                                                            actionButton("help", "Quick Tip!", style =
+                                                                             'padding:4px; font-size:95%'),
+                                                            hr(),
+                                                        )
+                                                    ),
+                                                    fluidRow(column(
+                                                        12,
+                                                        h6("Last Updated:", todaydate, ' at 6AM EST'),
+                                                        h6(
+                                                            "Source:",
+                                                            tags$a(href = "https://covid.ourworldindata.org/data/owid-covid-data.csv", "ECDC")
+                                                        ),
+                                                        tags$h6(
+                                                            "Created by Elijah Silva",
+                                                            br(),
+                                                            a(href = "https://www.linkedin.com/in/elijahsilva/", "LinkedIn"),
+                                                            " | ",
+                                                            a(href = "https://github.com/Elijah-Silva/covid", "Github"),
+                                                            align = "center"
+                                                        )
+                                                    ))
+                                                ),
+                                                column(6,
+                                                       withSpinner(leafletOutput("map",
+                                                                                 height = 711), type =
+                                                                       6)),
+                                                column(4,
+                                                       "",
+                                                       fluidRow(
+                                                           column(
+                                                               6,
+                                                               h5("Total Deaths:", align = "center"),
+                                                               h1(textOutput("worldDeath"),
+                                                                  style = "color:darkred",
+                                                                  align = "center"),
+                                                               div(style = 'height: 130px; overflow-y: scroll',
+                                                                   dataTableOutput("totalDeathsTable"))
+                                                           ),
+                                                           column(
+                                                               6,
+                                                               h5("New Cases:", align = "center"),
+                                                               h1(textOutput("newCases"),
+                                                                  style = "color:darkorange",
+                                                                  align = "center"),
+                                                               div(style = 'height: 130px; overflow-y: scroll;',
+                                                                   dataTableOutput("totalNewCasesTable"))
+                                                           )
+                                                       ),
+                                                       hr(),
+                                                       fluidRow(
+                                                           column(
+                                                               12,
+                                                               withSpinner(plotlyOutput("plot1"), type =
+                                                                               6),
+                                                               dateRangeInput(
+                                                                   "dateRange",
+                                                                   label = "Filter Date Range:",
+                                                                   min = min(data$date),
+                                                                   max = max(data$date),
+                                                                   start = startdate,
+                                                                   end = max(data$date)
+                                                               )
+                                                           )
+                                                       ))
+                                                
+                                            ))
+                                 )))
+                         )))
 
 
 ################
@@ -293,7 +312,7 @@ ui <- shinyUI(navbarPage(
 ################
 server <- function(input, output, session) {
     location <- data$location
-    dates <- format(data$date, format ="%Y-%m-%d")
+    dates <- format(data$date, format = "%Y-%m-%d")
     total_cases <- data$total_cases
     total_deaths <- data$total_deaths
     new_cases <- data$new_cases
@@ -301,8 +320,37 @@ server <- function(input, output, session) {
     death_dens <- data$total_deaths_per_million
     
     df <-
-        data.frame(dates, location, total_cases, total_deaths, new_cases, case_dens, death_dens)
+        data.frame(dates,
+                   location,
+                   total_cases,
+                   total_deaths,
+                   new_cases,
+                   case_dens,
+                   death_dens)
     
+    #################
+    # ACTION BUTTON #
+    #################
+    
+    observeEvent(input$help, {
+        shinyalert(
+            title = "Quick Tip!",
+            text = "Click on any country to get a variety of summary statistics (cases, deaths, new cases, new deaths, case and death density per million). You also have the ability to choose 'World' under 'Country:' to get worldwide statitics",
+            closeOnEsc = TRUE,
+            closeOnClickOutside = TRUE,
+            html = FALSE,
+            type = "",
+            showConfirmButton = TRUE,
+            showCancelButton = FALSE,
+            confirmButtonText = "OK",
+            confirmButtonCol = "#AEDEF4",
+            timer = 0,
+            imageUrl = "data:image/png;base64,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",
+            imageWidth = 100,
+            imageHeight = 100,
+            animation = TRUE
+        )
+    })
     
     ##############
     # DATATABLES #
@@ -428,41 +476,19 @@ server <- function(input, output, session) {
     })
     
     observe({
-        if (input$country == "World") {
-            shinyalert(
-                title = "World Plot",
-                text = "To create a plot for World, please update 'Filter Date Range' at the bottom right corner",
-                closeOnEsc = TRUE,
-                closeOnClickOutside = TRUE,
-                html = FALSE,
-                type = "",
-                showConfirmButton = TRUE,
-                showCancelButton = FALSE,
-                confirmButtonText = "OK",
-                confirmButtonCol = "#AEDEF4",
-                timer = 0,
-                imageUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAMAAACahl6sAAAAflBMVEX///8AAACbm5uTk5Pf399PT0/v7+/6+voQEBB+fn4GBgb19fXNzc14eHgMDAzU1NQbGxtWVlbb29u1tbUkJCRnZ2c8PDzm5uaJiYk2NjZGRkbFxcVwcHAXFxdLS0u9vb0uLi5eXl6pqamXl5cjIyOhoaGFhYVVVVU5OTm2trbdMHnfAAAG7ElEQVR4nO2caZuiOhBGGzcUVHDfbXen//8fvILt3KoAIZA30848dT4KmhzJUlnIx4cgCIIgCIIgCIIgCIIgCIIgCIIZYfPF5KezYkfLe9H+6azYISLvhoi8G39CZHG6bQfLScdZAgnORcLz6juBYO2yhXcs4jd3HuGwcZFIiluR/sFT6DlIJcWpyDlQPTzv7uPTSXApss1qPNi7MXEoMsv18LwjOqEUdyLLAg/Pa4JTSnEm0ukWigR9bFIpzkR6hR6PVthBNXEl0hlqRLwbNK0UVyIDnYcXtKCJJTgS4Q8k6I0nU2aCb7kcibAm65JU7s4vZhIhU0twI+LHJM/DZznqsGcyAqaW4kbkRPO8/f4wYgHLGJhcghsRWoyCxetT1iJvdd+vgRORiOZ49vvjkBW4EJdeghMRFi2SMnSmn19x6SW4EPHpYGpNL9BHMoell+JChFX1E71yo1ewnaILkTbJ7Y6FVQvacC1hCSY4EOnQ3CqN051cWqESTHEgcqXlR4nYJ/TaIv/79XAgsid5nSrXWDsAbbfwIqxkZSZN6PgXGqbgRVjJysSGX+TiDpRiCl5kRLJ6yVz1aXyPDIHhIj4dq+cEVLRtPmOSTIGLfNKS9Zm9TsMU5PAKLkLjrGHOJMOYXFfbNBvgInT4lPuTNN4CrjSgRVokm/kzcbQxyCl69gljRBpUJHcU2CwzrQdaRN/4JmzIHbPcO2qBFqGNb36jFJI7fkHSTAGL9GnJKoil6OIPrraDRdh8VkF0S0P5U/4tNQCL0H47v4rwyRRcJcGKsPikKJO0tuO6RKyISRXhcSNs4I4VYVWkMI+0/MEGV1gRmsW48C7aJcLiRqxIeS+SQCcii3UrAhVhVaRRfB8duKMms6EitMzockjjGI1vJaAitKvTDchpZImagYCK0CJz19xHB1eoGQikCFtN0EbodHAFmoFAirBVA+2mgKOpsTlIEVqHu9o76dwXaIiNFNkZZ48OiLuYbRBAEfMq8vFxMS2ExgBFWC9SUoXpFDBmPwdQxLQXSaCLWpg1OJwIG4uUdXMdcm8AWd/FidDxUnngsSI3Q3bR4kTYdoDS8RLdPQQZ7+JE5iRr5SNYOtddNLivBExEtwSaA3ydBCbCFtcN5nTpYBKxUA0TofFJ3nKCCg3lEQ0wSoQ1viY/taBPELBQjRJhC1VGUyO0AQYME1EiNOYIjGZ0aXO9Lr+9DJBI4YagYliMaV+2QCJ0+dy0oNBFOvvRFUjkSEuW4d9LO3f7DTYYkZB2b3vDL7FZMOs+ESPCRuvGax60bFnv1cSI0EUo86Erbbe6trE8RIQVEvNYli1l207LQ0RoeFJlCE4D5kP95FMQInTisNJCLdsR9VU7/RSECHuZqkoRCWmAZhk5AkTY1tFdpVkqttPZbj8HQORIc1PthcnahTKLvQhrsoYVdwDQ4ZXdoru9CG16vEHFL7Opl9imL7EWYduBqj4Q/oKGVfduKzJmL1NVfSBK2OxZvFxtKRKy16O7NfbIsJJ5qb/JxlKE9em1RhWslmgX7PTYifC3Dae1Vjru7Ddqv+9uJaK8V1wvyGjxl97r7gW2EVE86i403zyEiYWI8t59XLei+sp5CtWbvoTaIp09T96i6ewrJyqs68yp1BXZXBQPm/lb9R3+bo3iVU8kzBznYLcTo63+3LryXptaItdYTXhut8YcZo4dCW4VA6/qIv51qqbqHWy3vbYyf40XNyr9OVVFWr1skt7UfsYzyjkiIl5W+H8qiSzO82xyj+eBeH2tn3fYRXCfmD4WY5Hwc7DKSerBCrOdOsp51A+Go6vR/2QiEvYbs0PO6TlP7qjXoBcFf9Sj6B7Pm7JUtCJhNGnO1vn/1AvggRp+0dk2T5v9tjmJCn1yRTr9U3PbXhUf0fKbGPgqy4OJ/k9L6B7Wx0HztGkpSopI69obmQh8c0efYtaZFRbhHKX9bHl6bU1gIouR5ntZYhcnmEW5DaOGfSsjslDjJy1BD3zYwYvGrjxxym6simQiHp3GFvruMyPsac/rybBSRMaaexW6A3caCYuBeT31npOtRKShuZWxajgqVIRwmY3oCulxkeKTvSjTHvy0nAI2R9MSNuMiV82tT4brJfqAGS3+5GhU8ZUnstA24XF7uXF0oJ+WaNkulelzkaLT74ar4/LLbeUuoXUa7DVdQ7rTgoqESl8Uz4+96+ZHFQj+I/AbjOaXTLl5joZYz+730lbvsp7drpvWTxQkEzrR5tQczPaHtMgFs2eYpMRafv8zeleBLGH0+Tu8l/N+3w0ReTdE5N34X+TQ/JvhW43+YkTk3RCRd0NE3g0ReTc+wsa/wU9HSIIgCIIgCIIgCIIgCIIgCIIgCILwj/AfrTBSiCaKcK4AAAAASUVORK5CYII=",
-                imageWidth = 100,
-                imageHeight = 100,
-                animation = TRUE
-            )
-        }
-    })
-    
-    observe({
         if (input$radio == "Cases") {
             output$plot1 <- renderPlotly({
                 ggplotly({
                     ggCases <- ggplot(data = df_subset(), aes(x = as.Date(dates))) +
-                    geom_line(aes(y = total_cases),
-                              color = 'darkred',
-                              group = 5) +
-                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                    scale_x_date() +
-                    themeGG +
-                    labs(title = "Number of Cases",
-                         y = "Number of Cases",
-                         x = "Date")
+                        geom_line(aes(y = total_cases),
+                                  color = 'darkred',
+                                  group = 5) +
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        scale_x_date() +
+                        themeGG +
+                        labs(title = "Number of Cases",
+                             y = "Number of Cases",
+                             x = "Date")
                     
                     ggCases
                 })
@@ -472,15 +498,15 @@ server <- function(input, output, session) {
             output$plot1 <- renderPlotly({
                 ggplotly({
                     ggDeaths <- ggplot(data = df_subset(), aes(x = as.Date(dates))) +
-                    geom_line(aes(y = total_deaths),
-                              color = 'steelblue',
-                              group = 5) +
-                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                    scale_x_date() +
-                    labs(title = "Number of Deaths",
-                         y = "Number of Deaths",
-                         x = "Date") +
-                    themeGG
+                        geom_line(aes(y = total_deaths),
+                                  color = 'steelblue',
+                                  group = 5) +
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        scale_x_date() +
+                        labs(title = "Number of Deaths",
+                             y = "Number of Deaths",
+                             x = "Date") +
+                        themeGG
                     
                     ggDeaths
                 })
@@ -490,14 +516,15 @@ server <- function(input, output, session) {
         if (input$radio == "New Cases") {
             output$plot1 <- renderPlotly({
                 ggplotly({
-                    ggNew <- ggplot(data = df_subset(), aes(x = as.Date(dates), y = new_cases)) +
-                    geom_bar(stat = "identity") +
-                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                    scale_x_date() +
-                    labs(title = "New Cases (last 24 hours)",
-                         y = "Number of New Cases",
-                         x = "Date") +
-                    themeGG
+                    ggNew <-
+                        ggplot(data = df_subset(), aes(x = as.Date(dates), y = new_cases)) +
+                        geom_bar(stat = "identity") +
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        scale_x_date() +
+                        labs(title = "New Cases (last 24 hours)",
+                             y = "Number of New Cases",
+                             x = "Date") +
+                        themeGG
                     
                     ggNew
                 })
@@ -506,14 +533,15 @@ server <- function(input, output, session) {
         if (input$radio == "Cases Per Million") {
             output$plot1 <- renderPlotly({
                 ggplotly({
-                    ggCD <- ggplot(data = df_subset(), aes(x = as.Date(dates), y = case_dens)) +
-                    geom_bar(stat = "identity") +
-                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                    scale_x_date() +
-                    labs(title = "Numer of Cases per Million",
-                         y = "Number of Cases Per Million",
-                         x = "Date") +
-                    themeGG
+                    ggCD <-
+                        ggplot(data = df_subset(), aes(x = as.Date(dates), y = case_dens)) +
+                        geom_bar(stat = "identity") +
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        scale_x_date() +
+                        labs(title = "Numer of Cases per Million",
+                             y = "Number of Cases Per Million",
+                             x = "Date") +
+                        themeGG
                     
                     ggCD
                 })
@@ -522,14 +550,15 @@ server <- function(input, output, session) {
         if (input$radio == "Deaths Per Million") {
             output$plot1 <- renderPlotly({
                 ggplotly({
-                    ggDD <- ggplot(data = df_subset(), aes(x = as.Date(dates), y = death_dens)) +
-                    geom_bar(stat = "identity") +
-                    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                    scale_x_date() +
-                    labs(title = "Numer of Deaths per Million",
-                         y = "Number of Deaths Per Million",
-                         x = "Date") +
-                    themeGG
+                    ggDD <-
+                        ggplot(data = df_subset(), aes(x = as.Date(dates), y = death_dens)) +
+                        geom_bar(stat = "identity") +
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        scale_x_date() +
+                        labs(title = "Numer of Deaths per Million",
+                             y = "Number of Deaths Per Million",
+                             x = "Date") +
+                        themeGG
                     
                     ggDD
                 })
@@ -537,19 +566,126 @@ server <- function(input, output, session) {
         }
     })
     
+    #====
+    # WORLD PLOT
+    #==
+    
+    observe({
+        if (input$radio == "Cases" & input$country == "World") {
+            output$plot1 <- renderPlotly({
+                ggplotly({
+                    ggCases <- ggplot(data = df_subset(), aes(x = as.Date(dates))) +
+                        geom_line(aes(y = total_cases),
+                                  color = 'darkred',
+                                  group = 5) +
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        scale_x_date() +
+                        themeGG +
+                        labs(title = "Number of Cases",
+                             y = "Number of Cases",
+                             x = "Date")
+                    
+                    ggCases
+                })
+            })
+        }
+        if (input$radio == "Deaths" & input$country == "World") {
+            output$plot1 <- renderPlotly({
+                ggplotly({
+                    ggDeaths <- ggplot(data = df_subset(), aes(x = as.Date(dates))) +
+                        geom_line(aes(y = total_deaths),
+                                  color = 'steelblue',
+                                  group = 5) +
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        scale_x_date() +
+                        labs(title = "Number of Deaths",
+                             y = "Number of Deaths",
+                             x = "Date") +
+                        themeGG
+                    
+                    ggDeaths
+                })
+                
+            })
+        }
+        if (input$radio == "New Cases" & input$country == "World") {
+            output$plot1 <- renderPlotly({
+                ggplotly({
+                    ggNew <-
+                        ggplot(data = df_subset(), aes(x = as.Date(dates), y = new_cases)) +
+                        geom_bar(stat = "identity") +
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        scale_x_date() +
+                        labs(title = "New Cases (last 24 hours)",
+                             y = "Number of New Cases",
+                             x = "Date") +
+                        themeGG
+                    
+                    ggNew
+                })
+            })
+        }
+        if (input$radio == "Cases per Million" &
+            input$country == "World") {
+            output$plot1 <- renderPlotly({
+                ggplotly({
+                    ggCD <-
+                        ggplot(data = df_subset(), aes(x = as.Date(dates), y = case_dens)) +
+                        geom_bar(stat = "identity") +
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        scale_x_date() +
+                        labs(title = "Numer of Cases per Million",
+                             y = "Number of Cases Per Million",
+                             x = "Date") +
+                        themeGG
+                    
+                    ggCD
+                })
+            })
+        }
+        if (input$radio == "Deaths per Million" &
+            input$country == "World") {
+            output$plot1 <- renderPlotly({
+                ggplotly({
+                    ggDD <-
+                        ggplot(data = df_subset(), aes(x = as.Date(dates), y = death_dens)) +
+                        geom_bar(stat = "identity") +
+                        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                        scale_x_date() +
+                        labs(title = "Numer of Deaths per Million",
+                             y = "Number of Deaths Per Million",
+                             x = "Date") +
+                        themeGG
+                    
+                    ggDD
+                })
+            })
+        }
+        
+    })
+    
     ###########
     # LEAFLET #
     ###########
     
     observe({
-        if (input$radio == "Cases") {
+        if (input$country != "World" & input$radio == "Cases") {
             output$map <- renderLeaflet({
-                coordCode <- countrycode(input$country, origin = 'country.name', destination = 'iso3c')
-                lat <- subset(world_sf_merged@data$LAT, world_sf_merged@data$ISO3 == coordCode)
-                lng <- subset(world_sf_merged@data$LON, world_sf_merged@data$ISO3 == coordCode)
+                coordCode <-
+                    countrycode(input$country,
+                                origin = 'country.name',
+                                destination = 'iso3c')
+                lat <-
+                    subset(world_sf_merged@data$LAT,
+                           world_sf_merged@data$ISO3 == coordCode)
+                lng <-
+                    subset(world_sf_merged@data$LON,
+                           world_sf_merged@data$ISO3 == coordCode)
                 leaflet() %>%
-                    addProviderTiles("CartoDB.Positron", options=providerTileOptions(noWrap = TRUE)) %>%
-                    setView(lat = lat, lng = lng, zoom = 4) %>%
+                    addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+                    setView(lat = lat,
+                            lng = lng,
+                            zoom = 4) %>%
                     addPolygons(
                         data = world_sf_merged ,
                         fillColor = ~ palC(world_sf_merged$total_cases),
@@ -566,15 +702,24 @@ server <- function(input, output, session) {
                     )
             })
         }
-        if (input$radio == "Deaths") {
+        if (input$country != "World" & input$radio == "Deaths") {
             output$map <- renderLeaflet({
-                coordCode <- countrycode(input$country, origin = 'country.name', destination = 'iso3c')
-                lat <- subset(world_sf_merged@data$LAT, world_sf_merged@data$ISO3 == coordCode)
-                lng <- subset(world_sf_merged@data$LON, world_sf_merged@data$ISO3 == coordCode)
+                coordCode <-
+                    countrycode(input$country,
+                                origin = 'country.name',
+                                destination = 'iso3c')
+                lat <-
+                    subset(world_sf_merged@data$LAT,
+                           world_sf_merged@data$ISO3 == coordCode)
+                lng <-
+                    subset(world_sf_merged@data$LON,
+                           world_sf_merged@data$ISO3 == coordCode)
                 leaflet() %>%
                     clearControls() %>%
-                    addProviderTiles("CartoDB.Positron", options=providerTileOptions(noWrap = TRUE)) %>%
-                    setView(lat = lat, lng = lng, zoom = 4) %>%
+                    addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+                    setView(lat = lat,
+                            lng = lng,
+                            zoom = 4) %>%
                     addPolygons(
                         data = world_sf_merged ,
                         fillColor = ~ palD(world_sf_merged$total_deaths),
@@ -591,15 +736,24 @@ server <- function(input, output, session) {
                     )
             })
         }
-        if (input$radio == "New Cases") {
+        if (input$country != "World" & input$radio == "New Cases") {
             output$map <- renderLeaflet({
-                coordCode <- countrycode(input$country, origin = 'country.name', destination = 'iso3c')
-                lat <- subset(world_sf_merged@data$LAT, world_sf_merged@data$ISO3 == coordCode)
-                lng <- subset(world_sf_merged@data$LON, world_sf_merged@data$ISO3 == coordCode)
+                coordCode <-
+                    countrycode(input$country,
+                                origin = 'country.name',
+                                destination = 'iso3c')
+                lat <-
+                    subset(world_sf_merged@data$LAT,
+                           world_sf_merged@data$ISO3 == coordCode)
+                lng <-
+                    subset(world_sf_merged@data$LON,
+                           world_sf_merged@data$ISO3 == coordCode)
                 leaflet() %>%
                     clearControls() %>%
-                    addProviderTiles("CartoDB.Positron", options=providerTileOptions(noWrap = TRUE)) %>%
-                    setView(lat = lat, lng = lng, zoom = 4) %>%
+                    addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+                    setView(lat = lat,
+                            lng = lng,
+                            zoom = 4) %>%
                     addPolygons(
                         data = world_sf_merged ,
                         fillColor = ~ palNC(world_sf_merged$new_cases),
@@ -616,15 +770,25 @@ server <- function(input, output, session) {
                     )
             })
         }
-        if (input$radio == "Cases Per Million") {
+        if (input$country != "World" &
+            input$radio == "Cases per Million") {
             output$map <- renderLeaflet({
-                coordCode <- countrycode(input$country, origin = 'country.name', destination = 'iso3c')
-                lat <- subset(world_sf_merged@data$LAT, world_sf_merged@data$ISO3 == coordCode)
-                lng <- subset(world_sf_merged@data$LON, world_sf_merged@data$ISO3 == coordCode)
+                coordCode <-
+                    countrycode(input$country,
+                                origin = 'country.name',
+                                destination = 'iso3c')
+                lat <-
+                    subset(world_sf_merged@data$LAT,
+                           world_sf_merged@data$ISO3 == coordCode)
+                lng <-
+                    subset(world_sf_merged@data$LON,
+                           world_sf_merged@data$ISO3 == coordCode)
                 leaflet() %>%
                     clearControls() %>%
-                    addProviderTiles("CartoDB.Positron", options=providerTileOptions(noWrap = TRUE)) %>%
-                    setView(lat = lat, lng = lng, zoom = 4) %>%
+                    addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+                    setView(lat = lat,
+                            lng = lng,
+                            zoom = 4) %>%
                     addPolygons(
                         data = world_sf_merged ,
                         fillColor = ~ palCD(world_sf_merged$total_cases_per_million),
@@ -641,15 +805,25 @@ server <- function(input, output, session) {
                     )
             })
         }
-        if (input$radio == "Deaths Per Million") {
+        if (input$country != "World" &
+            input$radio == "Deaths per Million") {
             output$map <- renderLeaflet({
-                coordCode <- countrycode(input$country, origin = 'country.name', destination = 'iso3c')
-                lat <- subset(world_sf_merged@data$LAT, world_sf_merged@data$ISO3 == coordCode)
-                lng <- subset(world_sf_merged@data$LON, world_sf_merged@data$ISO3 == coordCode)
+                coordCode <-
+                    countrycode(input$country,
+                                origin = 'country.name',
+                                destination = 'iso3c')
+                lat <-
+                    subset(world_sf_merged@data$LAT,
+                           world_sf_merged@data$ISO3 == coordCode)
+                lng <-
+                    subset(world_sf_merged@data$LON,
+                           world_sf_merged@data$ISO3 == coordCode)
                 leaflet() %>%
                     clearControls() %>%
-                    addProviderTiles("CartoDB.Positron", options=providerTileOptions(noWrap = TRUE)) %>%
-                    setView(lat = lat, lng = lng, zoom = 4) %>%
+                    addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+                    setView(lat = lat,
+                            lng = lng,
+                            zoom = 4) %>%
                     addPolygons(
                         data = world_sf_merged ,
                         fillColor = ~ palDD(world_sf_merged$total_deaths_per_million),
@@ -668,6 +842,143 @@ server <- function(input, output, session) {
         }
         
     })
+    
+    #####################
+    # LEAFLET FOR WORLD #
+    #####################
+    
+    #========
+    # Cases =
+    #========
+    observe({
+        if (input$country == "World" & input$radio == "Cases") {
+            output$map <- renderLeaflet({
+                leaflet() %>%
+                    addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+                    addPolygons(
+                        data = world_sf_merged ,
+                        fillColor = ~ palC(world_sf_merged$total_cases),
+                        fillOpacity = 0.7,
+                        weight = 0.2,
+                        smoothFactor = 0.2,
+                        popup = ~ popup_sb
+                    ) %>%
+                    addLegend(
+                        pal = palC,
+                        values = world_sf_merged$total_cases,
+                        position = "bottomright",
+                        title = "Total Cases"
+                    )
+            })
+        }
+    })
+    
+    #=========
+    # Deaths =
+    #=========
+    observe({
+        if (input$country == "World" & input$radio == "Deaths") {
+            output$map <- renderLeaflet({
+                leaflet() %>%
+                    addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+                    addPolygons(
+                        data = world_sf_merged ,
+                        fillColor = ~ palD(world_sf_merged$total_deaths),
+                        fillOpacity = 0.7,
+                        weight = 0.2,
+                        smoothFactor = 0.2,
+                        popup = ~ popup_sb
+                    ) %>%
+                    addLegend(
+                        pal = palD,
+                        values = world_sf_merged$total_deaths,
+                        position = "bottomright",
+                        title = "Total Deaths"
+                    )
+            })
+        }
+    })
+    
+    #============
+    # New Cases =
+    #============
+    observe({
+        if (input$country == "World" & input$radio == "New Cases") {
+            output$map <- renderLeaflet({
+                leaflet() %>%
+                    addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+                    addPolygons(
+                        data = world_sf_merged ,
+                        fillColor = ~ palNC(world_sf_merged$new_cases),
+                        fillOpacity = 0.7,
+                        weight = 0.2,
+                        smoothFactor = 0.2,
+                        popup = ~ popup_sb
+                    ) %>%
+                    addLegend(
+                        pal = palNC,
+                        values = world_sf_merged$new_cases,
+                        position = "bottomright",
+                        title = "New Cases"
+                    )
+            })
+        }
+    })
+    
+    #====================
+    # Cases per Million =
+    #====================
+    observe({
+        if (input$country == "World" & input$radio == "Cases per Million") {
+            output$map <- renderLeaflet({
+                leaflet() %>%
+                    addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+                    addPolygons(
+                        data = world_sf_merged ,
+                        fillColor = ~ palCD(world_sf_merged$total_cases_per_million),
+                        fillOpacity = 0.7,
+                        weight = 0.2,
+                        smoothFactor = 0.2,
+                        popup = ~ popup_sb
+                    ) %>%
+                    addLegend(
+                        pal = palCD,
+                        values = world_sf_merged$total_cases_per_million,
+                        position = "bottomright",
+                        title = "Cases per Million"
+                    )
+            })
+        }
+    })
+    
+    #=====================
+    # Deaths per Million =
+    #=====================
+    observe({
+        if (input$country == "World" &
+            input$radio == "Deaths per Million") {
+            output$map <- renderLeaflet({
+                leaflet() %>%
+                    addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+                    addPolygons(
+                        data = world_sf_merged ,
+                        fillColor = ~ palDD(world_sf_merged$total_deaths_per_million),
+                        fillOpacity = 0.7,
+                        weight = 0.2,
+                        smoothFactor = 0.2,
+                        popup = ~ popup_sb
+                    ) %>%
+                    addLegend(
+                        pal = palDD,
+                        values = world_sf_merged$total_deaths_per_million,
+                        position = "bottomright",
+                        title = "Deaths per Million"
+                    )
+            })
+        }
+    })
+    
+    
     
 }
 

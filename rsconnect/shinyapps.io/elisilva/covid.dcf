@@ -5,8 +5,8 @@ account: elisilva
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2422835
-bundleId: 3280030
+bundleId: 3280045
 url: https://elisilva.shinyapps.io/covid/
-when: 1592357299.52258
+when: 1592357601.19104
 asMultiple: FALSE
 asStatic: FALSE

@@ -1,6 +1,6 @@
-#################
+#================
 # LOAD PACKAGES #
-#################
+#================
 library(shiny)
 library(leaflet)
 library(RColorBrewer)
@@ -19,26 +19,27 @@ library(data.table)
 library(plotly)
 library(shinyalert)
 
-#########################
+#========================
 # IMPORT DATA FROM ECDC #
-#########################
+#========================
 data <-
     read.csv("https://covid.ourworldindata.org/data/owid-covid-data.csv",
              header = TRUE)
 
-#################
+#================
 # DATA CLEANING #
-#################
+#================
 data$location <-
     gsub("Cote d'Ivoire", "Ivory Coast", data$location)
 data$date <- as.Date(data$date, format = "%Y-%m-%d")
 todaydate = max(as.Date((data$date)))
 startdate = "2020-01-01"
 options(scipen = 999)
+dataToday <- subset(data, date == todaydate) #Subset for only today's date
 
-####################
+#===================
 # IMPORT SHAPEFILE #
-####################
+#===================
 world_spdf <- readOGR(
     #import spatial files
     dsn = paste0(getwd(), "/DATA/world_shape_file/") ,
@@ -46,21 +47,13 @@ world_spdf <- readOGR(
     verbose = FALSE
 )
 
-####
-# SUBSET DATA FOR DATASET INCL. ONLY TODAYS  DATA
-####
-dataToday <- subset(data, date == todaydate)
-
-###
-# MERGE SHAPE FILE AND  DATASET
-###
 world_sf_merged <-
-    geo_join(world_spdf, dataToday, "ISO3", "iso_code")
+    geo_join(world_spdf, dataToday, "ISO3", "iso_code") #Merge shapefile and dataset
 
 
-###
-# CREATE LEAFLET POPUPS
-###
+#========================
+# CREATE LEAFLET POPUPS #
+#========================
 popup_sb <-
     paste0(
         "<center>",
@@ -129,10 +122,9 @@ popup_sb <-
     )
 
 
-##################
-# GGPLOT WRITING #
-##################
-
+#==============
+# GGPLOT TEXT #
+#==============
 themeGG <- theme(
     plot.background = element_rect(fill = "white"),
     plot.title = element_text(
@@ -159,9 +151,9 @@ themeGG <- theme(
     )
 )
 
-########################
+#=======================
 # COLOR PALETTE GGPLOT #
-########################
+#=======================
 palC <-
     colorNumeric("YlOrBr",
                  domain = world_sf_merged@data$total_cases,
@@ -184,7 +176,7 @@ palDD <- colorNumeric("YlOrBr",
                       domain = world_sf_merged@data$total_deaths_per_million,
                       na.color = "transparent")
 
-#############
+############
 # START UI #
 ############
 ui <- shinyUI(navbarPage(theme = shinytheme("flatly"),
@@ -328,14 +320,13 @@ server <- function(input, output, session) {
                    case_dens,
                    death_dens)
     
-    #################
+    #================
     # ACTION BUTTON #
-    #################
-    
+    #================
     observeEvent(input$help, {
         shinyalert(
             title = "Quick Tip!",
-            text = "Click on any country to get a variety of summary statistics (cases, deaths, new cases, new deaths, case and death density per million). You also have the ability to choose 'World' under 'Country:' to get worldwide statitics",
+            text = "Click on any country to get a variety of summary statistics (cases, deaths, new cases, new deaths, case and death density per million). You also have the ability to choose 'World' under 'Country:' to get worldwide statistics",
             closeOnEsc = TRUE,
             closeOnClickOutside = TRUE,
             html = FALSE,
@@ -352,10 +343,9 @@ server <- function(input, output, session) {
         )
     })
     
-    ##############
+    #=============
     # DATATABLES #
-    ##############
-    
+    #=============
     # Total Cases Table
     df_totalCases <- reactive({
         data %>%
@@ -437,9 +427,9 @@ server <- function(input, output, session) {
         )
     })
     
-    #########################
-    # TEXT ABOVE DATATABELS #
-    #########################
+    #======================================
+    # SUMMARY STATISTICS ABOVE DATATABLES #
+    #======================================
     
     df_world <- reactive({
         subset(data, location == "World" &
@@ -462,9 +452,9 @@ server <- function(input, output, session) {
     })
     
     
-    ############
+    #===========
     # PLOTTING #
-    ############
+    #===========
     
     df_subset <- reactive({
         subset(
@@ -566,9 +556,9 @@ server <- function(input, output, session) {
         }
     })
     
-    #====
-    # WORLD PLOT
-    #==
+    #=============
+    # WORLD PLOT #
+    #=============
     
     observe({
         if (input$radio == "Cases" & input$country == "World") {
@@ -664,9 +654,9 @@ server <- function(input, output, session) {
         
     })
     
-    ###########
+    #==========
     # LEAFLET #
-    ###########
+    #==========
     
     observe({
         if (input$country != "World" & input$radio == "Cases") {
@@ -843,13 +833,10 @@ server <- function(input, output, session) {
         
     })
     
-    #####################
-    # LEAFLET FOR WORLD #
-    #####################
-    
-    #========
-    # Cases =
-    #========
+    #================
+    # WORLD LEAFLET #
+    #================
+    # Cases
     observe({
         if (input$country == "World" & input$radio == "Cases") {
             output$map <- renderLeaflet({
@@ -873,9 +860,7 @@ server <- function(input, output, session) {
         }
     })
     
-    #=========
-    # Deaths =
-    #=========
+    # Deaths
     observe({
         if (input$country == "World" & input$radio == "Deaths") {
             output$map <- renderLeaflet({
@@ -899,9 +884,7 @@ server <- function(input, output, session) {
         }
     })
     
-    #============
-    # New Cases =
-    #============
+    # New Cases
     observe({
         if (input$country == "World" & input$radio == "New Cases") {
             output$map <- renderLeaflet({
@@ -925,9 +908,7 @@ server <- function(input, output, session) {
         }
     })
     
-    #====================
-    # Cases per Million =
-    #====================
+    # Cases per Million
     observe({
         if (input$country == "World" & input$radio == "Cases per Million") {
             output$map <- renderLeaflet({
@@ -951,9 +932,7 @@ server <- function(input, output, session) {
         }
     })
     
-    #=====================
-    # Deaths per Million =
-    #=====================
+    # Deaths per Million
     observe({
         if (input$country == "World" &
             input$radio == "Deaths per Million") {

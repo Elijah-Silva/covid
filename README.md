@@ -8,8 +8,7 @@ The user can observe a number of statistics related to the virus, on both a nati
 This Shiny application may be accessed [here](https://elisilva.shinyapps.io/covid/)
 
 ## Bugs
-1. Countries missing data for today's date (in the ECDC dataset) are not included in the dashboard (i.e. Spain)
-2. When "World" is choosen as country, no map will be shown (no lat/lng data for "World" in shapefile)
+1. Countries missing data in the ECDC dataset for today's date are not included in the dashboard (i.e. Spain)
 
 ## Authors
 

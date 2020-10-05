@@ -50,7 +50,6 @@ world_spdf <- readOGR(
 world_sf_merged <-
     geo_join(world_spdf, dataToday, "ISO3", "iso_code") #Merge shapefile and dataset
 
-
 #========================
 # CREATE LEAFLET POPUPS #
 #========================
@@ -180,7 +179,7 @@ palDD <- colorNumeric("YlOrBr",
 # START UI #
 ############
 ui <- shinyUI(navbarPage(theme = shinytheme("flatly"),
-                         "COVID-19",
+                         "Worldwide COVID-19 Tracker",
                          tabPanel(
                              "Data Explorer",
                              div(class = "outer",

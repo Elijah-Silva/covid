@@ -1,6 +1,6 @@
 # Coronavirus Dashboard
 
-The purpose of this application is to share statistics about the coronavirus epidemic using data from the European Centre for Disease Prevention and Control (ECDC).
+The purpose of this application is to share statistics about the coronavirus outbreak using data from the European Centre for Disease Prevention and Control (ECDC).
 The user can observe a number of statistics related to the virus, on both a national and global level, including, number of cases, number of deaths, new cases, new deaths, cases per million individuals and deaths per million individuals.
 
 ## Deployment

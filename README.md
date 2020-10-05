@@ -7,7 +7,13 @@ The user can observe a number of statistics related to the virus, on both a nati
 
 This Shiny application may be accessed [here](https://elisilva.shinyapps.io/covid/)
 
+## To-Do
+
+1. Add date input for leaflet, where the user is change map based on a specific date (ability to see the evolution of COVID, rather than a static view of data from today's date)
+
+
 ## Bugs
+
 1. Countries missing data in the ECDC dataset for today's date are not included in the dashboard (i.e. Spain)
 
 ## Authors

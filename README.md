@@ -7,15 +7,6 @@ The user can observe a number of variables related to the virus, on both a natio
 
 This Shiny application may be accessed [here](https://elisilva.shinyapps.io/covid/)
 
-## To-Do
-
-1. 
-
-
-## Bugs
-
-1. 
-
 ## Authors
 
 Elijah Silva -- [LinkdedIn](https://www.linkedin.com/in/elijahsilva/)
